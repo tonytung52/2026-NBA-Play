@@ -1,0 +1,372 @@
+# 2026-NBA-Play
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 NBA Playoffs · 八強戰力解析全書</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;700;900&family=Barlow+Condensed:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617; --card: #0f172a; --accent: #fbbf24;
+            --white: #f8fafc; --silver: #94a3b8; --border: rgba(251,191,36,0.15);
+            --red: #ef4444; --blue: #3b82f6; --gold: #fbbf24;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--white); font-family: 'Noto Sans TC', sans-serif; line-height: 1.6; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* SVG Logo Library */
+        .hidden-svg { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+        /* Header & Hero */
+        header { height: 90vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+        .hero-content { text-align: center; z-index: 10; }
+        .hero-content h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 15vw, 180px); line-height: 0.8; margin-bottom: 20px; }
+        .hero-content h1 span { display: block; background: linear-gradient(to bottom, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { display: inline-block; padding: 5px 15px; border: 1px solid var(--accent); color: var(--accent); font-weight: 700; font-family: 'Barlow Condensed'; letter-spacing: 2px; margin-bottom: 10px; }
+
+        /* Navigation */
+        nav { sticky: top; top: 0; background: rgba(2,6,23,0.95); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid var(--border); }
+        .nav-inner { display: flex; justify-content: center; gap: 10px; padding: 15px 0; overflow-x: auto; }
+        .nav-btn { background: none; border: none; color: var(--silver); cursor: pointer; font-family: 'Barlow Condensed'; font-weight: 800; font-size: 18px; padding: 5px 15px; transition: 0.3s; white-space: nowrap; }
+        .nav-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        /* Section Styling */
+        section { padding: 80px 0; display: none; }
+        section.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { font-family: 'Bebas Neue'; font-size: 60px; margin-bottom: 40px; text-align: center; }
+        .section-title em { font-style: normal; color: var(--accent); }
+
+        /* Matchup Grid */
+        .matchup-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; margin-bottom: 30px; position: relative; }
+        .matchup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 20px; }
+        .matchup-vs { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 30px 0; }
+        .team-box { text-align: center; flex: 1; }
+        .team-logo { width: 100px; height: 100px; margin: 0 auto 15px; }
+        .team-logo svg { width: 100%; height: 100%; }
+        .team-name { font-family: 'Bebas Neue'; font-size: 36px; }
+        .team-seed { font-size: 14px; color: var(--accent); letter-spacing: 2px; }
+        .vs-text { font-family: 'Bebas Neue'; font-size: 60px; color: rgba(255,255,255,0.1); }
+
+        /* Analysis Table */
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .analysis-item { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        .analysis-item h4 { font-family: 'Barlow Condensed'; font-size: 20px; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
+        
+        /* Stats Bar */
+        .stat-row { margin-bottom: 10px; }
+        .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+        .stat-bar-bg { height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+        /* Expert Quote */
+        .quote-box { background: rgba(251,191,36,0.05); border: 1px dashed var(--accent); padding: 20px; border-radius: 12px; margin-top: 20px; }
+        .quote-text { font-style: italic; color: #cbd5e1; }
+        .quote-author { display: block; margin-top: 10px; font-weight: 700; color: var(--accent); font-family: 'Barlow Condensed'; }
+
+        /* Legend Voices */
+        .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .legend-card { background: var(--card); padding: 25px; border-radius: 12px; position: relative; }
+        .legend-card::before { content: '"'; position: absolute; top: 10px; left: 15px; font-size: 60px; color: var(--accent); opacity: 0.2; }
+
+        @media (max-width: 768px) {
+            .matchup-vs { flex-direction: column; gap: 20px; }
+            .analysis-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SVG LIBRARY (Hidden) -->
+<svg class="hidden-svg">
+    <defs>
+        <!-- Knicks (Abstract Triangle & Hoop) -->
+        <symbol id="logo-nyk" viewBox="0 0 100 100">
+            <path d="M10,80 L50,10 L90,80 Z" fill="none" stroke="#F58426" stroke-width="5"/>
+            <circle cx="50" cy="55" r="25" fill="none" stroke="#006BB6" stroke-width="6"/>
+            <text x="50" y="75" text-anchor="middle" font-size="12" fill="#fff" font-family="Arial Black">KNICKS</text>
+        </symbol>
+        <!-- 76ers (Stars & 76) -->
+        <symbol id="logo-phi" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#006BB6"/>
+            <text x="50" y="65" text-anchor="middle" font-size="40" fill="#fff" font-family="Arial Black">76</text>
+            <circle cx="50" cy="15" r="5" fill="#EF4444"/>
+        </symbol>
+        <!-- Pistons (Piston Head Shape) -->
+        <symbol id="logo-det" viewBox="0 0 100 100">
+            <rect x="20" y="20" width="60" height="60" rx="10" fill="#1D42BA"/>
+            <circle cx="50" cy="50" r="20" fill="#C8102E"/>
+            <text x="50" y="95" text-anchor="middle" font-size="10" fill="#fff" font-family="Arial Black">DETROIT</text>
+        </symbol>
+        <!-- Cavaliers (Sword & C) -->
+        <symbol id="logo-cle" viewBox="0 0 100 100">
+            <path d="M20,50 Q20,20 50,20 Q80,20 80,50 Q80,80 50,80" fill="none" stroke="#860038" stroke-width="12"/>
+            <rect x="45" y="10" width="10" height="80" fill="#FDBB30"/>
+        </symbol>
+        <!-- Thunder (Lightning Shield) -->
+        <symbol id="logo-okc" viewBox="0 0 100 100">
+            <path d="M20,20 L80,20 L70,80 L50,95 L30,80 Z" fill="#007AC1"/>
+            <path d="M50,30 L35,55 L50,55 L45,80 L65,45 L50,45 Z" fill="#EF3B24"/>
+        </symbol>
+        <!-- Lakers (Purple & Gold Ball) -->
+        <symbol id="logo-lal" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#FDB927"/>
+            <path d="M5,50 L95,50 M50,5 L50,95" stroke="#552583" stroke-width="2"/>
+            <text x="50" y="58" text-anchor="middle" font-size="20" fill="#552583" font-family="Arial Black">LAKERS</text>
+        </symbol>
+        <!-- Spurs (Spur Boot) -->
+        <symbol id="logo-sas" viewBox="0 0 100 100">
+            <path d="M30,20 L30,70 L70,70" fill="none" stroke="#C4CED4" stroke-width="10"/>
+            <circle cx="70" cy="70" r="15" fill="#000" stroke="#C4CED4" stroke-width="3"/>
+            <path d="M70,55 L70,85" stroke="#C4CED4" stroke-width="2"/>
+        </symbol>
+        <!-- Wolves (Wolf Silhouette) -->
+        <symbol id="logo-min" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#0C2340"/>
+            <path d="M30,70 Q50,20 70,70" fill="#236192"/>
+            <circle cx="65" cy="40" r="5" fill="#78BE20"/>
+        </symbol>
+    </defs>
+</svg>
+
+<header>
+    <div class="hero-content">
+        <div class="badge">ANALYSIS REPORT · MAY 2026</div>
+        <h1>2026 NBA<span>PLAYOFFS</span></h1>
+        <p style="letter-spacing: 10px; color: var(--accent); font-weight: 300;">THE ELITE EIGHT · DEEP DIVE</p>
+    </div>
+</header>
+
+<nav>
+    <div class="container nav-inner">
+        <button class="nav-btn active" onclick="switchSec('east')">東區半決賽</button>
+        <button class="nav-btn" onclick="switchSec('west')">西區半決賽</button>
+        <button class="nav-btn" onclick="switchSec('predictions')">權威預測</button>
+        <button class="nav-btn" onclick="switchSec('legends')">傳奇觀點</button>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- EAST SECTION -->
+    <section id="east" class="active">
+        <h2 class="section-title">東區 <em>SEMIFINALS</em></h2>
+        
+        <!-- NYK vs PHI -->
+        <div class="matchup-card">
+            <div class="matchup-header">
+                <span class="badge">系列賽 · 第 2 輪</span>
+                <span style="color: var(--accent);">G1: 尼克領先 1-0</span>
+            </div>
+            <div class="matchup-vs">
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-nyk"/></svg></div>
+                    <div class="team-seed">#3 SEED</div>
+                    <div class="team-name">KNICKS</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-phi"/></svg></div>
+                    <div class="team-seed">#7 SEED</div>
+                    <div class="team-name">76ERS</div>
+                </div>
+            </div>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <h4>戰力解析 (Strength)</h4>
+                    <p>尼克擁有全聯盟最強的主場淨勝分 (+10.0)。Jalen Brunson 的單打穩定度與 KAT 的籃板統治力是核心優勢。</p>
+                </div>
+                <div class="analysis-item">
+                    <h4>關鍵球星 (Key Ability)</h4>
+                    <p><strong>Jalen Brunson：</strong> 「中距離解毒劑」，能在進攻停滯時靠腳步創造空間。<strong>Tyrese Maxey：</strong> 具備頂級的一條龍推進速度，是費城破防的尖兵。</p>
+                </div>
+            </div>
+            <div class="quote-box">
+                <p class="quote-text">「如果 Joel Embiid 的膝蓋能恢復到 80%，費城就有機會完成第七戰逆轉，但尼克的防守體系非常針對。」</p>
+                <span class="quote-author">— Zach Lowe, ESPN Senior Analyst</span>
+            </div>
+        </div>
+
+        <!-- DET vs CLE -->
+        <div class="matchup-card">
+            <div class="matchup-header">
+                <span class="badge">系列賽 · 第 2 輪</span>
+                <span style="color: var(--silver);">G1 今天開打</span>
+            </div>
+            <div class="matchup-vs">
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-det"/></svg></div>
+                    <div class="team-seed">#1 SEED</div>
+                    <div class="team-name">PISTONS</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-cle"/></svg></div>
+                    <div class="team-seed">#4 SEED</div>
+                    <div class="team-name">CAVALIERS</div>
+                </div>
+            </div>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <h4>戰力解析 (Strength)</h4>
+                    <p>活塞本季防守效率第 2，場均火鍋與抄截均為聯盟頂尖。騎士則仰賴 Harden 的組織與 Mitchell 的爆發。</p>
+                </div>
+                <div class="analysis-item">
+                    <h4>關鍵球星 (Key Ability)</h4>
+                    <p><strong>Cade Cunningham：</strong> 36.1% 的全隊使用率，具備當代全能前鋒的傳球視野。<strong>Evan Mobley：</strong> 騎士的防守支柱，他的換防能力決定能否限制 Cade。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WEST SECTION -->
+    <section id="west">
+        <h2 class="section-title">西區 <em>SEMIFINALS</em></h2>
+
+        <!-- OKC vs LAL -->
+        <div class="matchup-card">
+            <div class="matchup-header">
+                <span class="badge">王者 vs 傳奇</span>
+                <span style="color: var(--accent);">OKC 奪冠大熱門</span>
+            </div>
+            <div class="matchup-vs">
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-okc"/></svg></div>
+                    <div class="team-seed">#1 SEED</div>
+                    <div class="team-name">THUNDER</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-lal"/></svg></div>
+                    <div class="team-seed">#4 SEED</div>
+                    <div class="team-name">LAKERS</div>
+                </div>
+            </div>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <h4>戰力解析 (Strength)</h4>
+                    <p>雷霆是史上失誤管控最精良的年輕球隊。湖人在 Luka 缺陣下，進攻點過於集中在 LeBron 身上。</p>
+                </div>
+                <div class="analysis-item">
+                    <h4>關鍵球星 (Key Ability)</h4>
+                    <p><strong>SGA：</strong> 本季連莊 MVP，其造犯規與節奏變換已達喬丹層級。<strong>LeBron James：</strong> 41 歲的比賽閱讀能力，他能否在體力耗盡前帶領 Bronny 製造驚喜？</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAS vs MIN -->
+        <div class="matchup-card">
+            <div class="matchup-header">
+                <span class="badge">巨塔對決</span>
+                <span style="color: var(--accent);">WEMBY 首秀</span>
+            </div>
+            <div class="matchup-vs">
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-sas"/></svg></div>
+                    <div class="team-seed">#2 SEED</div>
+                    <div class="team-name">SPURS</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team-box">
+                    <div class="team-logo"><svg><use href="#logo-min"/></svg></div>
+                    <div class="team-seed">#6 SEED</div>
+                    <div class="team-name">TIMBERWOLVES</div>
+                </div>
+            </div>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <h4>戰力解析 (Strength)</h4>
+                    <p>馬刺擁有聯盟最快推動速度，Wemby 的覆蓋範圍讓灰狼的外線面臨巨大心理壓力。</p>
+                </div>
+                <div class="analysis-item">
+                    <h4>關鍵球星 (Key Ability)</h4>
+                    <p><strong>Victor Wembanyama：</strong> 全票 DPOY 的阻攻威懾，能將對方禁區得分降低 25%。<strong>Anthony Edwards：</strong> 灰狼的破局者，其勁爆體測數據是少數能正面挑戰 Wemby 的球員。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PREDICTIONS SECTION -->
+    <section id="predictions">
+        <h2 class="section-title">權威 <em>PREDICTIONS</em></h2>
+        <div class="matchup-card">
+            <h3 style="font-family: 'Barlow Condensed'; margin-bottom: 20px;">ESPN BPI 奪冠預測</h3>
+            <div class="stat-row">
+                <div class="stat-label"><span>OKC Thunder</span><span>48.2%</span></div>
+                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 48%;"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label"><span>NY Knicks</span><span>15.4%</span></div>
+                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 15%;"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label"><span>SA Spurs</span><span>12.1%</span></div>
+                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 12%;"></div></div>
+            </div>
+            <p style="margin-top: 20px; font-size: 14px; color: var(--silver);">*基於 10,000 次模擬演算得出之機率。</p>
+        </div>
+
+        <div class="analysis-grid">
+            <div class="analysis-item">
+                <h4>NBC Sports 戰報</h4>
+                <p>NBC 將「馬刺 vs 灰狼」評為本輪最精彩對決，稱其為「新舊內線哲學的終極較量」。</p>
+            </div>
+            <div class="analysis-item">
+                <h4>ClutchPoints 深度分析</h4>
+                <p>Cade Cunningham 正在重現底特律的鐵血榮耀，預測活塞有 65% 機率晉級東冠。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LEGENDS SECTION -->
+    <section id="legends">
+        <h2 class="section-title">傳奇 <em>VOICES</em></h2>
+        <div class="legend-grid">
+            <div class="legend-card">
+                <p class="quote-text">「SGA 在場上的掌控力讓我想起年輕時的 Jordan，他不需要靠亂投，他能用腳步摧毀任何人。」</p>
+                <span class="quote-author">— Charles Barkley, Inside the NBA</span>
+            </div>
+            <div class="legend-card">
+                <p class="quote-text">「看著 Wembanyama 比賽，我感覺自己像是在看外星人。他做的那些動作，人類不該能做到。」</p>
+                <span class="quote-author">— Tim Duncan, Spurs Legend</span>
+            </div>
+            <div class="legend-card">
+                <p class="quote-text">「LeBron 與 Bronny 的助攻是我見過籃球場上最美的一幕。無論輸贏，詹姆斯已經贏了。」</p>
+                <span class="quote-author">— Magic Johnson, Lakers Legend</span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <div class="container" style="text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--silver); font-size: 13px;">
+        <p>© 2026 NBA PLAYOFFS ELITE 8 ANALYSIS SYSTEM</p>
+        <p>Data compiled from ESPN, NBC Sports, and Official NBA Stats Tracker.</p>
+    </div>
+</footer>
+
+<script>
+    function switchSec(id) {
+        // Hide all sections
+        document.querySelectorAll('section').forEach(sec => {
+            sec.classList.remove('active');
+        });
+        // Show target section
+        document.getElementById(id).classList.add('active');
+        
+        // Update nav buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+
+        // Scroll to top of section content
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
